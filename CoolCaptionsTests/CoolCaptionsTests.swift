@@ -31,4 +31,12 @@ import Testing
     @Test func flagsChangeWhatTheCaptioningScreenDoes() {
         #expect(model.flags === model.captioningScreen.flags)
     }
+
+    @Test func debugScreenFlipsTheSharedFlags() {
+        model.debugScreen.dropAlerts = false
+        model.debugScreen.gapMarkers = false
+
+        #expect(!model.flags.dropAlerts)
+        #expect(!model.flags.gapMarkers)
+    }
 }

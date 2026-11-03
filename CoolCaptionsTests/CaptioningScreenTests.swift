@@ -513,4 +513,34 @@ import Testing
         #expect(analytics.events.filter { $0 == .captionGapStarted }.count == 2)
         #expect(analytics.events.filter { $0 == .pausedStatusWasShown }.count == (alertsAreOn ? 2 : 0))
     }
+
+    // MARK: - View hooks
+
+    @Test func gapDurationIsKnownOnceItEnds() {
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+        connectionBecomes(.disconnected)
+        #expect(screen.gaps.first?.duration == nil)
+
+        clock.advance(by: 72)
+        connectionBecomes(.healthy)
+
+        #expect(screen.gaps.first?.duration == .seconds(72))
+    }
+
+    @Test func pausedStatusCountsFromTheDrop() {
+        let start = clock.now
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+        clock.advance(by: 10)
+        connectionBecomes(.disconnected)
+
+        clock.advance(by: 5)
+        screen.toggleButtonWasPressed()
+        screen.toggleButtonWasPressed()
+        #expect(screen.pausedSince == start + 10)
+
+        flags.dropAlerts = false
+        #expect(screen.pausedSince == nil)
+    }
 }

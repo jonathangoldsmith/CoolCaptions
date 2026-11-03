@@ -38,6 +38,15 @@ import Foundation
         flags.dropAlerts && isPaused
     }
 
+    /// When the open gap started, for the status timer. Start during an outage keeps the first start.
+    var pausedSince: Date? {
+        showsPausedStatus ? gaps.last?.start : nil
+    }
+
+    var connectionStatus: Connection.Status {
+        connection.status
+    }
+
     private(set) var gaps: [Gap] = []
 
     /// Goes up by one for each buzz. The view plays a buzz each time it changes.
@@ -125,12 +134,11 @@ import Foundation
                 platform.announce("Captions paused. No connection. Reconnecting automatically.")
             }
         } else if !isPaused, isGapOpen {
-            let end = platform.now()
-            gaps[gaps.count - 1].end = end
+            gaps[gaps.count - 1].end = platform.now()
             analytics.track(.captionGapEnded)
 
-            if captioner.isRunning, flags.dropAlerts, preferences.announcesWithVoiceOver {
-                let missed = Duration.seconds(end.timeIntervalSince(gaps[gaps.count - 1].start))
+            if captioner.isRunning, flags.dropAlerts, preferences.announcesWithVoiceOver,
+               let missed = gaps[gaps.count - 1].duration {
                 platform.announce("Captions resumed. Missed \(wording(for: missed, width: .wide)).")
             }
             canReopenLastGap = connection.status == .disconnected

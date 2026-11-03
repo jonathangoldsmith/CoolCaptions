@@ -17,6 +17,13 @@ struct DebugScreenView: View {
                 Text(Connection.Status.disconnected.rawValue.capitalized)
                     .tag(Connection.Status.disconnected)
             }
+            .accessibilityIdentifier("connectionPicker")
+
+            Section("Feature flags") {
+                Toggle("Drop alerts", isOn: $model.dropAlerts)
+                Toggle("Gap markers", isOn: $model.gapMarkers)
+                    .disabled(!model.dropAlerts)
+            }
         }
         .navigationTitle("Debug")
         .navigationBarTitleDisplayMode(.inline)

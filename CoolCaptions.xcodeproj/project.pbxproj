@@ -18,12 +18,20 @@
 			remoteGlobalIDString = 37820AA4307FBE790046561C;
 			remoteInfo = CoolCaptions;
 		};
+		37820AD0307FBE7A0046561C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37820A9D307FBE790046561C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 37820AA4307FBE790046561C;
+			remoteInfo = CoolCaptions;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		3775AF0D307FCA0C00F8CEA1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		37820AA5307FBE790046561C /* CoolCaptions.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoolCaptions.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		37820AB2307FBE7A0046561C /* CoolCaptionsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CoolCaptionsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		37820AD1307FBE7A0046561C /* CoolCaptionsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CoolCaptionsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -35,6 +43,11 @@
 		37820AB5307FBE7A0046561C /* CoolCaptionsTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = CoolCaptionsTests;
+			sourceTree = "<group>";
+		};
+		37820AD2307FBE7A0046561C /* CoolCaptionsUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CoolCaptionsUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -50,6 +63,11 @@
 			files = (
 			);
 		};
+		37820AD3307FBE7A0046561C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -59,6 +77,7 @@
 				3775AF0D307FCA0C00F8CEA1 /* README.md */,
 				37820AA7307FBE790046561C /* CoolCaptions */,
 				37820AB5307FBE7A0046561C /* CoolCaptionsTests */,
+				37820AD2307FBE7A0046561C /* CoolCaptionsUITests */,
 				37820AA6307FBE790046561C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -68,6 +87,7 @@
 			children = (
 				37820AA5307FBE790046561C /* CoolCaptions.app */,
 				37820AB2307FBE7A0046561C /* CoolCaptionsTests.xctest */,
+				37820AD1307FBE7A0046561C /* CoolCaptionsUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -114,6 +134,27 @@
 			productReference = 37820AB2307FBE7A0046561C /* CoolCaptionsTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		37820AD4307FBE7A0046561C /* CoolCaptionsUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 37820ADA307FBE7A0046561C /* Build configuration list for PBXNativeTarget "CoolCaptionsUITests" */;
+			buildPhases = (
+				37820AD6307FBE7A0046561C /* Sources */,
+				37820AD3307FBE7A0046561C /* Frameworks */,
+				37820AD5307FBE7A0046561C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				37820AD7307FBE7A0046561C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				37820AD2307FBE7A0046561C /* CoolCaptionsUITests */,
+			);
+			name = CoolCaptionsUITests;
+			productName = CoolCaptionsUITests;
+			productReference = 37820AD1307FBE7A0046561C /* CoolCaptionsUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -128,6 +169,10 @@
 						CreatedOnToolsVersion = 27.0;
 					};
 					37820AB1307FBE7A0046561C = {
+						CreatedOnToolsVersion = 27.0;
+						TestTargetID = 37820AA4307FBE790046561C;
+					};
+					37820AD4307FBE7A0046561C = {
 						CreatedOnToolsVersion = 27.0;
 						TestTargetID = 37820AA4307FBE790046561C;
 					};
@@ -149,6 +194,7 @@
 			targets = (
 				37820AA4307FBE790046561C /* CoolCaptions */,
 				37820AB1307FBE7A0046561C /* CoolCaptionsTests */,
+				37820AD4307FBE7A0046561C /* CoolCaptionsUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -161,6 +207,11 @@
 			);
 		};
 		37820AB0307FBE7A0046561C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		37820AD5307FBE7A0046561C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
 			);
@@ -178,6 +229,11 @@
 			files = (
 			);
 		};
+		37820AD6307FBE7A0046561C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -185,6 +241,11 @@
 			isa = PBXTargetDependency;
 			target = 37820AA4307FBE790046561C /* CoolCaptions */;
 			targetProxy = 37820AB3307FBE7A0046561C /* PBXContainerItemProxy */;
+		};
+		37820AD7307FBE7A0046561C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 37820AA4307FBE790046561C /* CoolCaptions */;
+			targetProxy = 37820AD0307FBE7A0046561C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -418,6 +479,48 @@
 			};
 			name = Release;
 		};
+		37820AD8307FBE7A0046561C /* Debug configuration for PBXNativeTarget "CoolCaptionsUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CBH54B9P5C;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.mightyfine.CoolCaptionsUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = CoolCaptions;
+			};
+			name = Debug;
+		};
+		37820AD9307FBE7A0046561C /* Release configuration for PBXNativeTarget "CoolCaptionsUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CBH54B9P5C;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.mightyfine.CoolCaptionsUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = CoolCaptions;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -442,6 +545,14 @@
 			buildConfigurations = (
 				37820AC8307FBE7A0046561C /* Debug configuration for PBXNativeTarget "CoolCaptionsTests" */,
 				37820AC9307FBE7A0046561C /* Release configuration for PBXNativeTarget "CoolCaptionsTests" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		37820ADA307FBE7A0046561C /* Build configuration list for PBXNativeTarget "CoolCaptionsUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				37820AD8307FBE7A0046561C /* Debug configuration for PBXNativeTarget "CoolCaptionsUITests" */,
+				37820AD9307FBE7A0046561C /* Release configuration for PBXNativeTarget "CoolCaptionsUITests" */,
 			);
 			defaultConfigurationName = Release;
 		};
