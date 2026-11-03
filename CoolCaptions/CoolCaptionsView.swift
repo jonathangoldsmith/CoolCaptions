@@ -30,9 +30,7 @@ struct CoolCaptionsView: View {
     var settingsButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             if model.isSettingsButtonVisible {
-                Button("Settings", systemImage: "gearshape") {
-                    model.settingsButtonWasPressed()
-                }
+                Button("Settings", systemImage: "gearshape", action: model.settingsButtonWasPressed)
             }
         }
     }

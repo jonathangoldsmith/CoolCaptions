@@ -3,10 +3,16 @@ import Foundation
 @Observable class Captioner {
     let analytics: Analytics
     let connection: Connection
+    let wait: (Duration) async throws -> Void
 
-    init(analytics: Analytics, connection: Connection) {
+    /// `wait` stands in for the time between lines. Tests replace it so nothing arrives on its own.
+    init(
+        analytics: Analytics, connection: Connection,
+        wait: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
+    ) {
         self.analytics = analytics
         self.connection = connection
+        self.wait = wait
     }
 
     // MARK: -
@@ -40,7 +46,9 @@ import Foundation
     private func run() async throws {
         for index in 0... {
             try Task.checkCancellation()
-            try await Task.sleep(for: .seconds(.random(in: 1...6)))
+            try await wait(.seconds(.random(in: 1...6)))
+            // A wait can finish just before Stop cancels it, so check again before acting.
+            try Task.checkCancellation()
 
             let line = conversation.line(at: index)
             let caption = Caption(id: UUID(), date: Date(), body: line)
@@ -51,7 +59,8 @@ import Foundation
                     analytics.track(.captionWasReceived)
 
                 case .degraded:
-                    try await Task.sleep(for: .seconds(5))
+                    try await wait(.seconds(5))
+                    try Task.checkCancellation()
                     captions.append(caption)
                     analytics.track(.captionWasReceived)
 

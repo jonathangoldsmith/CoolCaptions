@@ -17,8 +17,14 @@ import Testing
         let announcer = announcer
         self.clock = clock
         connection = Connection(analytics: analytics)
-        captioner = Captioner(analytics: analytics, connection: connection)
-        let platform = Platform(now: { clock.now }, locale: Locale(identifier: "en_US"), announce: announcer.announce)
+        // A wait that never ends, so the real conversation can't add captions or events mid-test.
+        captioner = Captioner(analytics: analytics, connection: connection, wait: { _ in
+            try await Task.sleep(for: .seconds(3600))
+        })
+        let platform = Platform(
+            now: { clock.now }, instant: { clock.instant },
+            locale: Locale(identifier: "en_US"), announce: announcer.announce
+        )
         screen = CaptioningScreen(
             analytics: analytics, connection: connection, captioner: captioner,
             preferences: preferences, flags: flags, platform: platform
@@ -27,10 +33,8 @@ import Testing
 
     let pausedAnnouncement = "Captions paused. No connection. Reconnecting automatically."
 
-    /// Does what the view does when the connection changes.
     func connectionBecomes(_ status: Connection.Status) {
         connection.status = status
-        screen.connectionStatusChanged()
     }
 
     var gapEvents: [Analytics.Event] {
@@ -165,9 +169,21 @@ import Testing
 
         let caption = captionArrives()
         connectionBecomes(.disconnected)
+        connectionBecomes(.healthy)
 
         let gap = try #require(screen.gaps.first)
         #expect(screen.items.map(\.id) == [caption.id, gap.id])
+    }
+
+    /// An open gap shows as the paused status, so the transcript only holds finished ones.
+    @Test func openGapStaysOutOfTheTranscript() {
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+        let caption = captionArrives()
+
+        connectionBecomes(.disconnected)
+
+        #expect(screen.items.map(\.id) == [caption.id])
     }
 
     // MARK: - Edge cases
@@ -231,6 +247,19 @@ import Testing
         #expect(screen.gaps.map(\.start) == [start])
     }
 
+    /// Both changes land in one main-actor turn, so a view's `.onChange` would see healthy to healthy and miss it.
+    @Test func dropAndRecoveryBeforeTheNextRenderAreStillRecorded() {
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+
+        connection.status = .disconnected
+        clock.advance(by: 2)
+        connection.status = .healthy
+
+        #expect(screen.gaps.map(\.duration) == [.seconds(2)])
+        #expect(gapEvents == [.captionGapStarted, .captionGapEnded])
+    }
+
     @Test func outageWhileStoppedRecordsNothing() {
         connectionBecomes(.disconnected)
         connectionBecomes(.healthy)
@@ -255,8 +284,7 @@ import Testing
             }
             clock.advance(by: 1)
 
-            let isGapOpen = screen.gaps.last.map { $0.end == nil } ?? false
-            #expect(isGapOpen == screen.isPaused, "after \(step)")
+            #expect((screen.gaps.last?.isOpen ?? false) == screen.isPaused, "after \(step)")
         }
     }
 
@@ -510,8 +538,8 @@ import Testing
         screen.toggleButtonWasPressed()
         screen.toggleButtonWasPressed()
 
-        #expect(analytics.events.filter { $0 == .captionGapStarted }.count == 2)
-        #expect(analytics.events.filter { $0 == .pausedStatusWasShown }.count == (alertsAreOn ? 2 : 0))
+        #expect(analytics.events.count(where: { $0 == .captionGapStarted }) == 2)
+        #expect(analytics.events.count(where: { $0 == .pausedStatusWasShown }) == (alertsAreOn ? 2 : 0))
     }
 
     // MARK: - View hooks
@@ -542,5 +570,47 @@ import Testing
 
         flags.dropAlerts = false
         #expect(screen.pausedSince == nil)
+    }
+
+    /// Starting the captioner directly skips the screen, so no gap opens. The timer must not reuse a finished one.
+    @Test func pausedSinceIgnoresAFinishedGap() {
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+        connectionBecomes(.disconnected)
+        connectionBecomes(.healthy)
+        screen.toggleButtonWasPressed()
+
+        connectionBecomes(.disconnected)
+        captioner.start()
+
+        #expect(screen.pausedSince == nil)
+    }
+
+    @Test func flagTurnedOnMidOutageWaitsForTheNextDrop() {
+        flags.dropAlerts = false
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+        connectionBecomes(.disconnected)
+
+        flags.dropAlerts = true
+        #expect(!screen.showsPausedStatus)
+        connectionBecomes(.healthy)
+        #expect(screen.items.isEmpty)
+
+        connectionBecomes(.disconnected)
+        #expect(screen.showsPausedStatus)
+        #expect(analytics.events.count(where: { $0 == .pausedStatusWasShown }) == 1)
+    }
+
+    @Test func wallClockJumpsDoNotChangeTheMissedTime() {
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+        connectionBecomes(.disconnected)
+
+        clock.advance(by: 40)
+        clock.jumpWallClock(by: -3600)
+        connectionBecomes(.healthy)
+
+        #expect(screen.gaps.first?.duration == .seconds(40))
     }
 }
