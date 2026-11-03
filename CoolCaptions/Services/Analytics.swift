@@ -15,6 +15,9 @@ class Analytics {
         case captionWasReceived
         case captionWasMissed
 
+        case captionGapStarted
+        case captionGapEnded
+
         case debugScreenAppeared
         case debugScreenDisappeared
         case debugButtonWasPressed

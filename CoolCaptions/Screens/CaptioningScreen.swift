@@ -84,8 +84,10 @@ import Foundation
             } else {
                 gaps.append(Gap(id: UUID(), start: now()))
             }
+            analytics.track(.captionGapStarted)
         } else if !isPaused, isGapOpen {
             gaps[gaps.count - 1].end = now()
+            analytics.track(.captionGapEnded)
             canReopenLastGap = connection.status == .disconnected
         }
     }

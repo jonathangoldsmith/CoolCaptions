@@ -23,6 +23,10 @@ import Testing
         screen.connectionStatusChanged()
     }
 
+    var gapEvents: [Analytics.Event] {
+        analytics.events.filter { $0 == .captionGapStarted || $0 == .captionGapEnded }
+    }
+
     func captionArrives() -> Caption {
         let caption = Caption(id: UUID(), date: clock.now, body: "Line")
         captioner.captions.append(caption)
@@ -244,5 +248,56 @@ import Testing
             let isGapOpen = screen.gaps.last.map { $0.end == nil } ?? false
             #expect(isGapOpen == screen.isPaused, "after \(step)")
         }
+    }
+
+    // MARK: - Analytics
+
+    @Test func logsGapStartAndEnd() {
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+
+        connectionBecomes(.disconnected)
+        connectionBecomes(.healthy)
+
+        #expect(gapEvents == [.captionGapStarted, .captionGapEnded])
+    }
+
+    @Test func logsEachPausedStretchWhenRestartingDuringOutage() {
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+        connectionBecomes(.disconnected)
+
+        screen.toggleButtonWasPressed()
+        screen.toggleButtonWasPressed()
+        connectionBecomes(.healthy)
+
+        #expect(gapEvents == [.captionGapStarted, .captionGapEnded, .captionGapStarted, .captionGapEnded])
+    }
+
+    @Test func logsNoGapEventsWhileStopped() {
+        connectionBecomes(.disconnected)
+        connectionBecomes(.healthy)
+
+        #expect(gapEvents.isEmpty)
+    }
+
+    @Test func logsNoGapEventsForDegraded() {
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+
+        connectionBecomes(.degraded)
+        connectionBecomes(.healthy)
+
+        #expect(gapEvents.isEmpty)
+    }
+
+    @Test func logsRepeatedDisconnectsOnce() {
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+
+        connectionBecomes(.disconnected)
+        connectionBecomes(.disconnected)
+
+        #expect(gapEvents == [.captionGapStarted])
     }
 }
