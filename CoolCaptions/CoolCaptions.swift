@@ -13,7 +13,7 @@ import SwiftUI
         connection = Connection(analytics: analytics)
         captioner = Captioner(analytics: analytics, connection: connection)
         debugScreen = DebugScreen(analytics: analytics, connection: connection)
-        captioningScreen = CaptioningScreen(analytics: analytics, captioner: captioner)
+        captioningScreen = CaptioningScreen(analytics: analytics, connection: connection, captioner: captioner)
     }
 
     // MARK: -
