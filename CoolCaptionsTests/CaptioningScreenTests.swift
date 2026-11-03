@@ -6,6 +6,7 @@ import Testing
     let analytics = AnalyticsSpy()
     let announcer = AnnouncementSpy()
     let preferences = Preferences()
+    let flags = FeatureFlags()
     let clock: TestClock
     let connection: Connection
     let captioner: Captioner
@@ -20,7 +21,7 @@ import Testing
         let platform = Platform(now: { clock.now }, locale: Locale(identifier: "en_US"), announce: announcer.announce)
         screen = CaptioningScreen(
             analytics: analytics, connection: connection, captioner: captioner,
-            preferences: preferences, platform: platform
+            preferences: preferences, flags: flags, platform: platform
         )
     }
 
@@ -441,5 +442,75 @@ import Testing
         let gap = try #require(screen.gaps.first)
         #expect(screen.items.map(\.id) == [gap.id])
         #expect(gapEvents == [.captionGapStarted, .captionGapEnded])
+    }
+
+    // MARK: - Feature flags
+
+    @Test func pausedStatusShowsWhilePaused() {
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+
+        connectionBecomes(.disconnected)
+        #expect(screen.showsPausedStatus)
+
+        connectionBecomes(.healthy)
+        #expect(!screen.showsPausedStatus)
+    }
+
+    @Test func alertsFlagOffShowsNothing() {
+        flags.dropAlerts = false
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+
+        connectionBecomes(.disconnected)
+        #expect(!screen.showsPausedStatus)
+        #expect(screen.hapticTrigger == 0)
+
+        connectionBecomes(.healthy)
+        #expect(screen.items.isEmpty)
+        #expect(announcer.messages.isEmpty)
+    }
+
+    @Test func alertsFlagOffStillRecordsAndLogsGaps() {
+        flags.dropAlerts = false
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+
+        connectionBecomes(.disconnected)
+        #expect(screen.isPaused)
+        connectionBecomes(.healthy)
+
+        #expect(screen.gaps.count == 1)
+        #expect(gapEvents == [.captionGapStarted, .captionGapEnded])
+    }
+
+    @Test func markerSwitchOffHidesOnlyMarkers() {
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+        let caption = captionArrives()
+        connectionBecomes(.disconnected)
+        connectionBecomes(.healthy)
+
+        flags.gapMarkers = false
+        #expect(screen.items.map(\.id) == [caption.id])
+
+        connectionBecomes(.disconnected)
+        #expect(screen.showsPausedStatus)
+        #expect(screen.hapticTrigger == 2)
+        #expect(announcer.messages.count == 3)
+    }
+
+    @Test(arguments: [true, false])
+    func logsStatusShownOnlyWhenAlertsAreOn(alertsAreOn: Bool) {
+        flags.dropAlerts = alertsAreOn
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+
+        connectionBecomes(.disconnected)
+        screen.toggleButtonWasPressed()
+        screen.toggleButtonWasPressed()
+
+        #expect(analytics.events.filter { $0 == .captionGapStarted }.count == 2)
+        #expect(analytics.events.filter { $0 == .pausedStatusWasShown }.count == (alertsAreOn ? 2 : 0))
     }
 }

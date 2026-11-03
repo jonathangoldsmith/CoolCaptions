@@ -19,4 +19,16 @@ import Testing
     @Test func settingsChangeWhatTheCaptioningScreenDoes() {
         #expect(model.settingsScreen.preferences === model.captioningScreen.preferences)
     }
+
+    @Test func settingsButtonFollowsAlertsFlag() {
+        #expect(model.isSettingsButtonVisible)
+
+        model.flags.dropAlerts = false
+
+        #expect(!model.isSettingsButtonVisible)
+    }
+
+    @Test func flagsChangeWhatTheCaptioningScreenDoes() {
+        #expect(model.flags === model.captioningScreen.flags)
+    }
 }

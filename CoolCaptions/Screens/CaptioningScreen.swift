@@ -5,16 +5,18 @@ import Foundation
     let connection: Connection
     let captioner: Captioner
     let preferences: Preferences
+    let flags: FeatureFlags
     let platform: Platform
 
     init(
         analytics: Analytics, connection: Connection, captioner: Captioner,
-        preferences: Preferences, platform: Platform = Platform()
+        preferences: Preferences, flags: FeatureFlags, platform: Platform = Platform()
     ) {
         self.analytics = analytics
         self.connection = connection
         self.captioner = captioner
         self.preferences = preferences
+        self.flags = flags
         self.platform = platform
     }
 
@@ -32,6 +34,10 @@ import Foundation
         captioner.isRunning && connection.status == .disconnected
     }
 
+    var showsPausedStatus: Bool {
+        flags.dropAlerts && isPaused
+    }
+
     private(set) var gaps: [Gap] = []
 
     /// Goes up by one for each buzz. The view plays a buzz each time it changes.
@@ -40,7 +46,7 @@ import Foundation
     /// The captions and gaps in time order. A caption comes before a gap that starts at the same time.
     var items: [DisplayItem] {
         var items: [DisplayItem] = []
-        var gaps = gaps[...]
+        var gaps = flags.dropAlerts && flags.gapMarkers ? gaps[...] : []
 
         for caption in captions {
             while let gap = gaps.first, gap.start < caption.date {
@@ -106,12 +112,16 @@ import Foundation
                 gaps[gaps.count - 1].end = nil
             } else {
                 gaps.append(Gap(id: UUID(), start: platform.now()))
-                if preferences.vibratesWhenPaused {
+                if flags.dropAlerts, preferences.vibratesWhenPaused {
                     hapticTrigger += 1
                 }
             }
             analytics.track(.captionGapStarted)
-            if preferences.announcesWithVoiceOver {
+            if flags.dropAlerts {
+                // Marks which drops the user was shown, so the test groups can be told apart.
+                analytics.track(.pausedStatusWasShown)
+            }
+            if flags.dropAlerts, preferences.announcesWithVoiceOver {
                 platform.announce("Captions paused. No connection. Reconnecting automatically.")
             }
         } else if !isPaused, isGapOpen {
@@ -119,7 +129,7 @@ import Foundation
             gaps[gaps.count - 1].end = end
             analytics.track(.captionGapEnded)
 
-            if captioner.isRunning, preferences.announcesWithVoiceOver {
+            if captioner.isRunning, flags.dropAlerts, preferences.announcesWithVoiceOver {
                 let missed = Duration.seconds(end.timeIntervalSince(gaps[gaps.count - 1].start))
                 platform.announce("Captions resumed. Missed \(wording(for: missed, width: .wide)).")
             }

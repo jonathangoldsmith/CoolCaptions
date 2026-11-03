@@ -5,6 +5,7 @@ import SwiftUI
     let connection: Connection
     let captioner: Captioner
     let preferences: Preferences
+    let flags: FeatureFlags
 
     let debugScreen: DebugScreen
     let settingsScreen: SettingsScreen
@@ -15,10 +16,12 @@ import SwiftUI
         connection = Connection(analytics: analytics)
         captioner = Captioner(analytics: analytics, connection: connection)
         preferences = Preferences()
+        flags = FeatureFlags()
         debugScreen = DebugScreen(analytics: analytics, connection: connection)
         settingsScreen = SettingsScreen(analytics: analytics, preferences: preferences)
         captioningScreen = CaptioningScreen(
-            analytics: analytics, connection: connection, captioner: captioner, preferences: preferences
+            analytics: analytics, connection: connection, captioner: captioner,
+            preferences: preferences, flags: flags
         )
     }
 
@@ -26,6 +29,11 @@ import SwiftUI
 
     var isDebugScreenVisible = false
     var isSettingsScreenVisible = false
+
+    /// The settings only adjust the drop alerts, so they show exactly when the alerts can.
+    var isSettingsButtonVisible: Bool {
+        flags.dropAlerts
+    }
 
     // MARK: -
 

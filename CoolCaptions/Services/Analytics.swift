@@ -17,6 +17,7 @@ class Analytics {
 
         case captionGapStarted
         case captionGapEnded
+        case pausedStatusWasShown
 
         case debugScreenAppeared
         case debugScreenDisappeared
