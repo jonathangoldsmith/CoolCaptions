@@ -4,21 +4,28 @@ import SwiftUI
     let analytics: Analytics
     let connection: Connection
     let captioner: Captioner
+    let preferences: Preferences
 
     let debugScreen: DebugScreen
+    let settingsScreen: SettingsScreen
     let captioningScreen: CaptioningScreen
 
-    init() {
-        analytics = Analytics()
+    init(analytics: Analytics = Analytics()) {
+        self.analytics = analytics
         connection = Connection(analytics: analytics)
         captioner = Captioner(analytics: analytics, connection: connection)
+        preferences = Preferences()
         debugScreen = DebugScreen(analytics: analytics, connection: connection)
-        captioningScreen = CaptioningScreen(analytics: analytics, connection: connection, captioner: captioner)
+        settingsScreen = SettingsScreen(analytics: analytics, preferences: preferences)
+        captioningScreen = CaptioningScreen(
+            analytics: analytics, connection: connection, captioner: captioner, preferences: preferences
+        )
     }
 
     // MARK: -
 
     var isDebugScreenVisible = false
+    var isSettingsScreenVisible = false
 
     // MARK: -
 
@@ -34,5 +41,10 @@ import SwiftUI
     func debugButtonWasPressed() {
         analytics.track(.debugButtonWasPressed)
         isDebugScreenVisible.toggle()
+    }
+
+    func settingsButtonWasPressed() {
+        analytics.track(.settingsButtonWasPressed)
+        isSettingsScreenVisible = true
     }
 }

@@ -22,6 +22,14 @@ class Analytics {
         case debugScreenDisappeared
         case debugButtonWasPressed
 
+        case settingsButtonWasPressed
+        case settingsScreenAppeared
+        case settingsScreenDisappeared
+        case vibrationWasTurnedOn
+        case vibrationWasTurnedOff
+        case announcementsWereTurnedOn
+        case announcementsWereTurnedOff
+
         case connectionStatusBecameHealthy
         case connectionStatusBecameDegraded
         case connectionStatusBecameDisconnected

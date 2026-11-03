@@ -5,6 +5,7 @@ import Testing
 @MainActor struct CaptioningScreenTests {
     let analytics = AnalyticsSpy()
     let announcer = AnnouncementSpy()
+    let preferences = Preferences()
     let clock: TestClock
     let connection: Connection
     let captioner: Captioner
@@ -17,7 +18,10 @@ import Testing
         connection = Connection(analytics: analytics)
         captioner = Captioner(analytics: analytics, connection: connection)
         let platform = Platform(now: { clock.now }, locale: Locale(identifier: "en_US"), announce: announcer.announce)
-        screen = CaptioningScreen(analytics: analytics, connection: connection, captioner: captioner, platform: platform)
+        screen = CaptioningScreen(
+            analytics: analytics, connection: connection, captioner: captioner,
+            preferences: preferences, platform: platform
+        )
     }
 
     let pausedAnnouncement = "Captions paused. No connection. Reconnecting automatically."
@@ -392,5 +396,50 @@ import Testing
 
         #expect(announcer.messages == [pausedAnnouncement, pausedAnnouncement])
         #expect(screen.hapticTrigger == 1)
+    }
+
+    // MARK: - User settings
+
+    @Test func cuesAreOnByDefault() {
+        #expect(Preferences().vibratesWhenPaused)
+        #expect(Preferences().announcesWithVoiceOver)
+    }
+
+    @Test func noBuzzWhenVibrateIsOff() {
+        preferences.vibratesWhenPaused = false
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+
+        connectionBecomes(.disconnected)
+
+        #expect(screen.hapticTrigger == 0)
+        #expect(announcer.messages == [pausedAnnouncement])
+    }
+
+    @Test func noAnnouncementsWhenAnnounceIsOff() {
+        preferences.announcesWithVoiceOver = false
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+
+        connectionBecomes(.disconnected)
+        connectionBecomes(.healthy)
+
+        #expect(announcer.messages.isEmpty)
+        #expect(screen.hapticTrigger == 1)
+    }
+
+    @Test func statusAndMarkerIgnoreTheSettings() throws {
+        preferences.vibratesWhenPaused = false
+        preferences.announcesWithVoiceOver = false
+        screen.toggleButtonWasPressed()
+        defer { captioner.stop() }
+
+        connectionBecomes(.disconnected)
+        #expect(screen.isPaused)
+
+        connectionBecomes(.healthy)
+        let gap = try #require(screen.gaps.first)
+        #expect(screen.items.map(\.id) == [gap.id])
+        #expect(gapEvents == [.captionGapStarted, .captionGapEnded])
     }
 }

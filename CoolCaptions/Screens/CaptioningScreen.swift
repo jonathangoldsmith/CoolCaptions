@@ -4,16 +4,21 @@ import Foundation
     let analytics: Analytics
     let connection: Connection
     let captioner: Captioner
+    let preferences: Preferences
     let platform: Platform
 
-    init(analytics: Analytics, connection: Connection, captioner: Captioner, platform: Platform = Platform()) {
+    init(
+        analytics: Analytics, connection: Connection, captioner: Captioner,
+        preferences: Preferences, platform: Platform = Platform()
+    ) {
         self.analytics = analytics
         self.connection = connection
         self.captioner = captioner
+        self.preferences = preferences
         self.platform = platform
     }
 
-    // MARK: -
+    // MARK: - Properties
 
     var captions: [Caption] {
         captioner.captions
@@ -63,7 +68,7 @@ import Foundation
         duration.formatted(.units(allowed: [.hours, .minutes, .seconds], width: width).locale(platform.locale))
     }
 
-    // MARK: -
+    // MARK: - Analytics
 
     func viewAppeared() {
         analytics.track(.captioningScreenAppeared)
@@ -83,7 +88,7 @@ import Foundation
         recordGap()
     }
 
-    // MARK: -
+    // MARK: - Gap Tracking
 
     /// True when Stop closed the last gap and its outage is still going,
     /// so pressing Start again continues that gap instead of opening a new one.
@@ -101,16 +106,20 @@ import Foundation
                 gaps[gaps.count - 1].end = nil
             } else {
                 gaps.append(Gap(id: UUID(), start: platform.now()))
-                hapticTrigger += 1
+                if preferences.vibratesWhenPaused {
+                    hapticTrigger += 1
+                }
             }
             analytics.track(.captionGapStarted)
-            platform.announce("Captions paused. No connection. Reconnecting automatically.")
+            if preferences.announcesWithVoiceOver {
+                platform.announce("Captions paused. No connection. Reconnecting automatically.")
+            }
         } else if !isPaused, isGapOpen {
             let end = platform.now()
             gaps[gaps.count - 1].end = end
             analytics.track(.captionGapEnded)
 
-            if captioner.isRunning {
+            if captioner.isRunning, preferences.announcesWithVoiceOver {
                 let missed = Duration.seconds(end.timeIntervalSince(gaps[gaps.count - 1].start))
                 platform.announce("Captions resumed. Missed \(wording(for: missed, width: .wide)).")
             }
