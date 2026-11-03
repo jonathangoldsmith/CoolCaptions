@@ -4,13 +4,13 @@ import Foundation
     let analytics: Analytics
     let connection: Connection
     let captioner: Captioner
-    let now: () -> Date
+    let platform: Platform
 
-    init(analytics: Analytics, connection: Connection, captioner: Captioner, now: @escaping () -> Date = { .now }) {
+    init(analytics: Analytics, connection: Connection, captioner: Captioner, platform: Platform = Platform()) {
         self.analytics = analytics
         self.connection = connection
         self.captioner = captioner
-        self.now = now
+        self.platform = platform
     }
 
     // MARK: -
@@ -29,6 +29,9 @@ import Foundation
 
     private(set) var gaps: [Gap] = []
 
+    /// Goes up by one for each buzz. The view plays a buzz each time it changes.
+    private(set) var hapticTrigger = 0
+
     /// The captions and gaps in time order. A caption comes before a gap that starts at the same time.
     var items: [DisplayItem] {
         var items: [DisplayItem] = []
@@ -43,6 +46,21 @@ import Foundation
         }
 
         return items + gaps.map(DisplayItem.gap)
+    }
+
+    // MARK: - Wording
+
+    func markerText(missed duration: Duration) -> String {
+        "Missed \(wording(for: duration, width: .abbreviated)) (no connection)"
+    }
+
+    /// Spells the units out, because VoiceOver reads "1 min" less clearly than "1 minute".
+    func markerLabel(missed duration: Duration) -> String {
+        "Missed \(wording(for: duration, width: .wide)). No connection."
+    }
+
+    private func wording(for duration: Duration, width: Duration.UnitsFormatStyle.UnitWidth) -> String {
+        duration.formatted(.units(allowed: [.hours, .minutes, .seconds], width: width).locale(platform.locale))
     }
 
     // MARK: -
@@ -82,12 +100,20 @@ import Foundation
             if canReopenLastGap {
                 gaps[gaps.count - 1].end = nil
             } else {
-                gaps.append(Gap(id: UUID(), start: now()))
+                gaps.append(Gap(id: UUID(), start: platform.now()))
+                hapticTrigger += 1
             }
             analytics.track(.captionGapStarted)
+            platform.announce("Captions paused. No connection. Reconnecting automatically.")
         } else if !isPaused, isGapOpen {
-            gaps[gaps.count - 1].end = now()
+            let end = platform.now()
+            gaps[gaps.count - 1].end = end
             analytics.track(.captionGapEnded)
+
+            if captioner.isRunning {
+                let missed = Duration.seconds(end.timeIntervalSince(gaps[gaps.count - 1].start))
+                platform.announce("Captions resumed. Missed \(wording(for: missed, width: .wide)).")
+            }
             canReopenLastGap = connection.status == .disconnected
         }
     }
