@@ -67,14 +67,26 @@ import Foundation
 
     // MARK: -
 
+    /// True when Stop closed the last gap and its outage is still going,
+    /// so pressing Start again continues that gap instead of opening a new one.
+    private var canReopenLastGap = false
+
     /// Opens a gap when captions pause, and closes it when they stop being paused.
     private func recordGap() {
         let isGapOpen = gaps.last.map { $0.end == nil } ?? false
+        if connection.status != .disconnected {
+            canReopenLastGap = false
+        }
 
         if isPaused, !isGapOpen {
-            gaps.append(Gap(id: UUID(), start: now()))
+            if canReopenLastGap {
+                gaps[gaps.count - 1].end = nil
+            } else {
+                gaps.append(Gap(id: UUID(), start: now()))
+            }
         } else if !isPaused, isGapOpen {
             gaps[gaps.count - 1].end = now()
+            canReopenLastGap = connection.status == .disconnected
         }
     }
 }
