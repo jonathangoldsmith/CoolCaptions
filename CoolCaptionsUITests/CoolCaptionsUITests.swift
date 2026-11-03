@@ -54,19 +54,6 @@ import XCTest
         XCTAssertFalse(element("pausedStatus").waitForExistence(timeout: 2))
     }
 
-    // TEMPORARY: holds each state for manual screenshots. Remove before committing.
-    func testZZHoldStatesForManualChecks() {
-        app.buttons["Start"].tap()
-        sleep(6)
-        setConnection(to: "Disconnected")
-        print("HOLD PAUSED")
-        sleep(15)
-        setConnection(to: "Healthy")
-        sleep(3)
-        print("HOLD MARKER")
-        sleep(15)
-    }
-
     // MARK: -
 
     func element(_ identifier: String) -> XCUIElement {
