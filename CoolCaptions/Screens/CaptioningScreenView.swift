@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CaptioningScreenView: View {
     let model: CaptioningScreen
+    @Environment(\.dynamicTypeSize) var dynamicTypeSize
 
     // MARK: -
 
@@ -57,12 +58,18 @@ struct CaptioningScreenView: View {
 
     func pausedStatus(since start: Date) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .firstTextBaseline) {
-                Label("Captions paused", systemImage: "wifi.slash")
-                Spacer()
-                Text(start, style: .timer).monospacedDigit()
+            // At accessibility text sizes the timer goes under the title, or the title breaks mid-word.
+            if dynamicTypeSize.isAccessibilitySize {
+                Label("Captions paused", systemImage: "wifi.slash").font(.headline)
+                Text(start, style: .timer).font(.headline).monospacedDigit()
+            } else {
+                HStack(alignment: .firstTextBaseline) {
+                    Label("Captions paused", systemImage: "wifi.slash")
+                    Spacer()
+                    Text(start, style: .timer).monospacedDigit()
+                }
+                .font(.headline)
             }
-            .font(.headline)
 
             Text("No connection · reconnecting automatically")
                 .font(.subheadline)

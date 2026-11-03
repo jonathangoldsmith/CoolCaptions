@@ -43,7 +43,8 @@ struct CoolCaptionsView: View {
     }
 
     var settingsScreen: some View {
+        // Large lets it grow to fit large text sizes.
         NavigationStack { SettingsScreenView(model: model.settingsScreen) }
-            .presentationDetents([.medium])
+            .presentationDetents([.medium, .large])
     }
 }
