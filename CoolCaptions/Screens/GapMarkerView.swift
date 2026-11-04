@@ -14,3 +14,10 @@ struct GapMarkerView: View {
             .accessibilityIdentifier("gapMarker")
     }
 }
+
+#Preview {
+    GapMarkerView(
+        text: "Missed 1 min, 12 sec (no connection)",
+        label: "Missed 1 minute, 12 seconds. No connection."
+    )
+}

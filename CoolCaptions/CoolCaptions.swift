@@ -20,8 +20,11 @@ import SwiftUI
         debugScreen = DebugScreen(analytics: analytics, connection: connection, flags: flags)
         settingsScreen = SettingsScreen(analytics: analytics, preferences: preferences)
         captioningScreen = CaptioningScreen(
-            analytics: analytics, connection: connection, captioner: captioner,
-            preferences: preferences, flags: flags
+            analytics: analytics,
+            connection: connection,
+            captioner: captioner,
+            preferences: preferences,
+            flags: flags
         )
     }
 

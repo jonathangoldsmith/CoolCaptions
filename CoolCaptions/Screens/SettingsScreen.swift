@@ -4,7 +4,7 @@ import Foundation
     let analytics: Analytics
     let preferences: Preferences
 
-    init(analytics: Analytics, preferences: Preferences) {
+    init(analytics: Analytics = Analytics(), preferences: Preferences = Preferences()) {
         self.analytics = analytics
         self.preferences = preferences
     }

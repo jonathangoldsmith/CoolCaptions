@@ -24,3 +24,9 @@ struct SettingsScreenView: View {
         .onDisappear { model.viewDisappeared() }
     }
 }
+
+#Preview {
+    NavigationStack {
+        SettingsScreenView(model: SettingsScreen())
+    }
+}

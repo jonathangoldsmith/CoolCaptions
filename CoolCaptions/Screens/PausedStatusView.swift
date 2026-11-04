@@ -39,3 +39,12 @@ struct PausedStatusView: View {
         .accessibilityIdentifier("pausedStatus")
     }
 }
+
+#Preview {
+    PausedStatusView(start: .now.addingTimeInterval(-12))
+}
+
+#Preview("Largest text") {
+    PausedStatusView(start: .now.addingTimeInterval(-12))
+        .dynamicTypeSize(.accessibility5)
+}

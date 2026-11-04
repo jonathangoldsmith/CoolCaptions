@@ -9,8 +9,12 @@ import Foundation
     let platform: Platform
 
     init(
-        analytics: Analytics, connection: Connection, captioner: Captioner,
-        preferences: Preferences, flags: FeatureFlags, platform: Platform = Platform()
+        analytics: Analytics,
+        connection: Connection,
+        captioner: Captioner,
+        preferences: Preferences,
+        flags: FeatureFlags,
+        platform: Platform = Platform()
     ) {
         self.analytics = analytics
         self.connection = connection
