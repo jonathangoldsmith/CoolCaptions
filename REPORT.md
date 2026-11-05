@@ -84,7 +84,7 @@ I checked it on a real iPhone in dark mode, and in the simulator at the largest 
 - **Recovering the missed speech:** the real long-term fix, but it needs audio buffering and persistence. Next, if this works.
 - **Auto-restart, or disabling Stop:** taking control away is worse. "Reconnecting automatically" covers it.
 - **A sound for everyone:** most users wouldn't hear it, and it would interrupt the conversation.
-- **Text size, dark mode, sharing, mic-permission timing (Marta, Dev):** real, but not why the app "just stopped".
+- **Marta's and Dev's other requests:** captions bigger than the largest system text size, a darker look at dinner, easier sharing, and asking for the mic later. They're real, but they're not why the app "just stopped". Everything this change adds does follow the system's text size and dark mode.
 - **Markers in saved transcripts, and the background:** the sample has no persistence, and every session in the data stopped before the app was backgrounded.
 
 ## 4. How I'd know it worked
