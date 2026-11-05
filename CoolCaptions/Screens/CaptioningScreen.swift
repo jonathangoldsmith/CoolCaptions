@@ -26,7 +26,7 @@ import Foundation
         connection.statusDidChange = { [weak self] in self?.recordGap() }
     }
 
-    // MARK: - Properties
+    // MARK: -
 
     var captions: [Caption] {
         captioner.captions
@@ -133,7 +133,6 @@ import Foundation
 
         if isPaused, openGap == nil {
             if canReopenLastGap {
-                gaps[gaps.count - 1].end = nil
                 gaps[gaps.count - 1].duration = nil
                 gaps[gaps.count - 1].showsAlert = flags.dropAlerts
             } else {
@@ -153,7 +152,6 @@ import Foundation
                 platform.announce(Self.pausedMessage)
             }
         } else if !isPaused, openGap != nil {
-            gaps[gaps.count - 1].end = platform.now()
             gaps[gaps.count - 1].duration = platform.instant() - gaps[gaps.count - 1].startInstant
             analytics.track(.captionGapEnded)
 

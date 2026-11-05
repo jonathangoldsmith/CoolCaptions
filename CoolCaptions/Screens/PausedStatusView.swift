@@ -31,7 +31,7 @@ struct PausedStatusView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(.regularMaterial, in: .rect(cornerRadius: Design.cardCornerRadius))
+        .background(.regularMaterial, in: .rect(cornerRadius: 16))
         .padding(.horizontal)
         // The pause announcement already says this. The timer would be read as digits, so leave it out.
         .accessibilityElement(children: .ignore)

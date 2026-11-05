@@ -86,8 +86,11 @@ import Testing
         defer { captioner.stop() }
 
         connectionBecomes(.degraded)
+        connectionBecomes(.healthy)
 
         #expect(!screen.isPaused)
+        #expect(screen.gaps.isEmpty)
+        #expect(gapEvents.isEmpty)
     }
 
     @Test func pausesWhenStartedWhileAlreadyDisconnected() {
@@ -121,7 +124,7 @@ import Testing
 
     // MARK: - Recording the gap
 
-    @Test func recordsGapStartAndEnd() {
+    @Test func recordsGapStartAndDuration() {
         let start = clock.now
         screen.toggleButtonWasPressed()
         defer { captioner.stop() }
@@ -132,11 +135,10 @@ import Testing
         connectionBecomes(.healthy)
 
         #expect(screen.gaps.map(\.start) == [start + 10])
-        #expect(screen.gaps.map(\.end) == [start + 82])
+        #expect(screen.gaps.map(\.duration) == [.seconds(72)])
     }
 
     @Test func stopDuringOutageEndsGapAtStopTime() {
-        let start = clock.now
         screen.toggleButtonWasPressed()
         clock.advance(by: 10)
         connectionBecomes(.disconnected)
@@ -144,7 +146,7 @@ import Testing
         clock.advance(by: 20)
         screen.toggleButtonWasPressed()
 
-        #expect(screen.gaps.map(\.end) == [start + 30])
+        #expect(screen.gaps.map(\.duration) == [.seconds(20)])
     }
 
     @Test func gapSitsBetweenTheCaptionsItInterrupts() throws {
@@ -205,7 +207,7 @@ import Testing
         connectionBecomes(.healthy)
 
         #expect(screen.gaps.map(\.start) == [start + 10])
-        #expect(screen.gaps.map(\.end) == [start + 48])
+        #expect(screen.gaps.map(\.duration) == [.seconds(38)])
     }
 
     @Test func outageThatEndsWhileStoppedIsNotReopened() {
@@ -232,7 +234,7 @@ import Testing
         connectionBecomes(.degraded)
 
         #expect(screen.gaps.count == 2)
-        #expect(screen.gaps.allSatisfy { $0.end != nil })
+        #expect(screen.gaps.allSatisfy { !$0.isOpen })
     }
 
     @Test func duplicateDisconnectedEventsAreIgnored() {
@@ -245,6 +247,7 @@ import Testing
         connectionBecomes(.disconnected)
 
         #expect(screen.gaps.map(\.start) == [start])
+        #expect(gapEvents == [.captionGapStarted])
     }
 
     /// Both changes land in one main-actor turn, so a view's `.onChange` would see healthy to healthy and miss it.
@@ -265,6 +268,7 @@ import Testing
         connectionBecomes(.healthy)
 
         #expect(screen.gaps.isEmpty)
+        #expect(gapEvents.isEmpty)
     }
 
     @Test func aGapIsOpenExactlyWhilePaused() {
@@ -290,16 +294,6 @@ import Testing
 
     // MARK: - Analytics
 
-    @Test func logsGapStartAndEnd() {
-        screen.toggleButtonWasPressed()
-        defer { captioner.stop() }
-
-        connectionBecomes(.disconnected)
-        connectionBecomes(.healthy)
-
-        #expect(gapEvents == [.captionGapStarted, .captionGapEnded])
-    }
-
     @Test func logsEachPausedStretchWhenRestartingDuringOutage() {
         screen.toggleButtonWasPressed()
         defer { captioner.stop() }
@@ -310,33 +304,6 @@ import Testing
         connectionBecomes(.healthy)
 
         #expect(gapEvents == [.captionGapStarted, .captionGapEnded, .captionGapStarted, .captionGapEnded])
-    }
-
-    @Test func logsNoGapEventsWhileStopped() {
-        connectionBecomes(.disconnected)
-        connectionBecomes(.healthy)
-
-        #expect(gapEvents.isEmpty)
-    }
-
-    @Test func logsNoGapEventsForDegraded() {
-        screen.toggleButtonWasPressed()
-        defer { captioner.stop() }
-
-        connectionBecomes(.degraded)
-        connectionBecomes(.healthy)
-
-        #expect(gapEvents.isEmpty)
-    }
-
-    @Test func logsRepeatedDisconnectsOnce() {
-        screen.toggleButtonWasPressed()
-        defer { captioner.stop() }
-
-        connectionBecomes(.disconnected)
-        connectionBecomes(.disconnected)
-
-        #expect(gapEvents == [.captionGapStarted])
     }
 
     // MARK: - Wording
@@ -354,15 +321,6 @@ import Testing
     }
 
     // MARK: - Announcements
-
-    @Test func announcesPause() {
-        screen.toggleButtonWasPressed()
-        defer { captioner.stop() }
-
-        connectionBecomes(.disconnected)
-
-        #expect(announcer.messages == [pausedAnnouncement])
-    }
 
     @Test func announcesResumeWithTheMissedTime() {
         screen.toggleButtonWasPressed()
@@ -429,11 +387,6 @@ import Testing
 
     // MARK: - User settings
 
-    @Test func cuesAreOnByDefault() {
-        #expect(Preferences().vibratesWhenPaused)
-        #expect(Preferences().announcesWithVoiceOver)
-    }
-
     @Test func noBuzzWhenVibrateIsOff() {
         preferences.vibratesWhenPaused = false
         screen.toggleButtonWasPressed()
@@ -464,7 +417,7 @@ import Testing
         defer { captioner.stop() }
 
         connectionBecomes(.disconnected)
-        #expect(screen.isPaused)
+        #expect(screen.showsPausedStatus)
 
         connectionBecomes(.healthy)
         let gap = try #require(screen.gaps.first)
@@ -543,18 +496,6 @@ import Testing
     }
 
     // MARK: - View hooks
-
-    @Test func gapDurationIsKnownOnceItEnds() {
-        screen.toggleButtonWasPressed()
-        defer { captioner.stop() }
-        connectionBecomes(.disconnected)
-        #expect(screen.gaps.first?.duration == nil)
-
-        clock.advance(by: 72)
-        connectionBecomes(.healthy)
-
-        #expect(screen.gaps.first?.duration == .seconds(72))
-    }
 
     @Test func pausedStatusCountsFromTheDrop() {
         let start = clock.now

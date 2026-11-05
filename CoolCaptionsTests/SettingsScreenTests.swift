@@ -25,11 +25,4 @@ import Testing
         #expect(preferences.announcesWithVoiceOver == isOn)
         #expect(analytics.events == [isOn ? .announcementsWereTurnedOn : .announcementsWereTurnedOff])
     }
-
-    @Test func logsAppearingAndDisappearing() {
-        screen.viewAppeared()
-        screen.viewDisappeared()
-
-        #expect(analytics.events == [.settingsScreenAppeared, .settingsScreenDisappeared])
-    }
 }

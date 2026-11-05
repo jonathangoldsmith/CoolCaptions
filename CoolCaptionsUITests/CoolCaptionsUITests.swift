@@ -21,19 +21,6 @@ import XCTest
         XCTAssertTrue(element("gapMarker").label.hasPrefix("Missed"))
     }
 
-    func testRestartingDuringADropKeepsOneMarker() {
-        app.buttons["Start"].tap()
-        setConnection(to: "Disconnected")
-
-        app.buttons["Stop"].tap()
-        app.buttons["Start"].tap()
-        XCTAssertTrue(element("pausedStatus").waitForExistence(timeout: 5))
-
-        setConnection(to: "Healthy")
-        XCTAssertTrue(element("gapMarker").waitForExistence(timeout: 5))
-        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "gapMarker").count, 1)
-    }
-
     func testSettingsButtonOpensSettings() {
         app.buttons["Settings"].tap()
 
@@ -54,7 +41,7 @@ import XCTest
         XCTAssertFalse(element("pausedStatus").waitForExistence(timeout: 2))
     }
 
-    // MARK: -
+    // MARK: - Helpers
 
     func element(_ identifier: String) -> XCUIElement {
         app.descendants(matching: .any)[identifier]

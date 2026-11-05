@@ -16,10 +16,6 @@ import Testing
         #expect(analytics.events == [.settingsButtonWasPressed])
     }
 
-    @Test func settingsChangeWhatTheCaptioningScreenDoes() {
-        #expect(model.settingsScreen.preferences === model.captioningScreen.preferences)
-    }
-
     @Test func settingsButtonFollowsAlertsFlag() {
         #expect(model.isSettingsButtonVisible)
 
@@ -28,15 +24,8 @@ import Testing
         #expect(!model.isSettingsButtonVisible)
     }
 
-    @Test func flagsChangeWhatTheCaptioningScreenDoes() {
-        #expect(model.flags === model.captioningScreen.flags)
-    }
-
-    @Test func debugScreenFlipsTheSharedFlags() {
-        model.debugScreen.dropAlerts = false
-        model.debugScreen.gapMarkers = false
-
-        #expect(!model.flags.dropAlerts)
-        #expect(!model.flags.gapMarkers)
+    @Test func screensShareSettingsAndFlags() {
+        #expect(model.settingsScreen.preferences === model.captioningScreen.preferences)
+        #expect(model.debugScreen.flags === model.captioningScreen.flags)
     }
 }

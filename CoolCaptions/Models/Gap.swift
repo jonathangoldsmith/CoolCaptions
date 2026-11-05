@@ -5,7 +5,6 @@ struct Gap: Identifiable, Equatable {
 
     /// Wall-clock time, for ordering against captions and for the on-screen timer.
     let start: Date
-    var end: Date?
 
     /// Measured on a monotonic clock, because the wall clock can jump while the phone is offline.
     let startInstant: ContinuousClock.Instant
@@ -14,5 +13,5 @@ struct Gap: Identifiable, Equatable {
     /// Fixed when the gap opens, so turning the flag on mid-outage doesn't count as an alert the user saw.
     var showsAlert: Bool
 
-    var isOpen: Bool { end == nil }
+    var isOpen: Bool { duration == nil }
 }
