@@ -18,8 +18,15 @@ import Foundation
     // MARK: -
 
     var status: Status = .healthy {
-        didSet { statusChanged() }
+        didSet {
+            statusChanged()
+            statusDidChange?()
+        }
     }
+
+    /// Runs after every change, so the listener sees each one, even two that land before the next render.
+    /// shortcut: one listener, the captioning screen. Use a list if a second screen needs it.
+    @ObservationIgnored var statusDidChange: (@MainActor () -> Void)?
 
     // MARK: -
 

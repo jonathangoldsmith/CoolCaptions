@@ -9,10 +9,14 @@ struct CoolCaptionsView: View {
     var body: some View {
         NavigationStack {
             CaptioningScreenView(model: model.captioningScreen)
-                .toolbar { debugButton }
+                .toolbar {
+                    debugButton
+                    settingsButton
+                }
         }
         .onChange(of: scenePhase) { model.scenePhaseChanged(to: $1) }
         .sheet(isPresented: $model.isDebugScreenVisible) { debugScreen }
+        .sheet(isPresented: $model.isSettingsScreenVisible) { settingsScreen }
     }
 
     var debugButton: some ToolbarContent {
@@ -23,8 +27,22 @@ struct CoolCaptionsView: View {
         }
     }
 
+    var settingsButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            if model.isSettingsButtonVisible {
+                Button("Settings", systemImage: "gearshape", action: model.settingsButtonWasPressed)
+            }
+        }
+    }
+
     var debugScreen: some View {
         NavigationStack { DebugScreenView(model: model.debugScreen) }
             .presentationDetents([.medium])
+    }
+
+    var settingsScreen: some View {
+        // Large lets it grow to fit large text sizes.
+        NavigationStack { SettingsScreenView(model: model.settingsScreen) }
+            .presentationDetents([.medium, .large])
     }
 }

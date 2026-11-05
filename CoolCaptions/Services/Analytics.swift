@@ -15,9 +15,21 @@ class Analytics {
         case captionWasReceived
         case captionWasMissed
 
+        case captionGapStarted
+        case captionGapEnded
+        case pausedStatusWasShown
+
         case debugScreenAppeared
         case debugScreenDisappeared
         case debugButtonWasPressed
+
+        case settingsButtonWasPressed
+        case settingsScreenAppeared
+        case settingsScreenDisappeared
+        case vibrationWasTurnedOn
+        case vibrationWasTurnedOff
+        case announcementsWereTurnedOn
+        case announcementsWereTurnedOff
 
         case connectionStatusBecameHealthy
         case connectionStatusBecameDegraded

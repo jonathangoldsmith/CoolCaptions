@@ -6,24 +6,22 @@ struct CaptioningScreenView: View {
     // MARK: -
 
     var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading) {
-                ForEach(model.captions) { caption in
-                    Divider()
-                    Text(caption.body).padding()
+        // A separate view, so `items` is only rebuilt when captions, gaps or flags change.
+        TranscriptView(model: model)
+            .navigationTitle("Cool Captions")
+            .navigationBarTitleDisplayMode(.inline)
+            .safeAreaBar(edge: .bottom) {
+                VStack {
+                    if let pausedSince = model.pausedSince {
+                        PausedStatusView(start: pausedSince)
+                    }
+
+                    Button(model.toggleButtonTitle, action: model.toggleButtonWasPressed)
+                        .buttonStyle(.glass)
                 }
             }
-        }
-        .defaultScrollAnchor(.bottom)
-        .defaultScrollAnchor(.bottom, for: .sizeChanges)
-        .navigationTitle("Cool Captions")
-        .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .bottom) {
-            Button(model.toggleButtonTitle) {
-                model.toggleButtonWasPressed()
-            }.buttonStyle(.glass)
-        }
-        .onAppear { model.viewAppeared() }
-        .onDisappear { model.viewDisappeared() }
+            .sensoryFeedback(.warning, trigger: model.hapticTrigger)
+            .onAppear { model.viewAppeared() }
+            .onDisappear { model.viewDisappeared() }
     }
 }
