@@ -191,7 +191,7 @@ In the sample, both flags start on so the app shows the change. Neither the flag
 
 The change was built test-first, in eight cycles: test setup, the paused state, recording gaps, edge cases from the data, analytics, wording and cues, settings, and flags. The view wiring came last. For each test: write it, watch it fail, write the least code that passes, then tidy up.
 
-**Unit tests (Swift Testing):** 44 tests, 54 cases once the parameterized ones are counted.
+**Unit tests (Swift Testing):** 44 tests, 52 cases once the parameterized ones are counted.
 
 | Suite | Covers |
 |---|---|
